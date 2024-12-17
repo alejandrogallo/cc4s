@@ -18,7 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        compiler: [gcc6, gcc7, gcc8, gcc9, gcc10, gcc11]
+        # gcc{6,7,8} have been removed from nixpkgs since they're not maintained anymore
+        compiler: [gcc9, gcc10, gcc11, gcc12, gcc13, gcc14]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
