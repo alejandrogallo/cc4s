@@ -31,8 +31,11 @@ jobs:
       with:
         nix_path: nixpkgs=channel:nixos-unstable
 
-    - name: Fetch all sources once
+    - name: Fetch dependencies sources
       run: make fetch-dependencies CONFIG=dist
+
+    - name: Fetch test data
+      run: make test-data CONFIG=dist
 
     - name: ${{matrix.compiler}} build extern
       run: ./tools/compile-and-test-nix.sh ${{matrix.compiler}}
