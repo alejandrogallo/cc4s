@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-#set -eu
+set -eu
 
 root=$(git rev-parse --show-toplevel)
 cd "${root}"
 
-if [[ ${#} -gt 1 ]]; then
+if [[ ${#} -gt 0 ]]; then
   compilers=(
     ${@}
   )
@@ -20,12 +20,24 @@ else
   )
 fi
 
+cat <<EOF
+Testing compilers
+    ${compilers[@]}
+
+and action
+    ${CI_MAKE_RULE:-All makefile rules}
+EOF
+
 for compiler in ${compilers[@]}; do
   NIX_SHELL_RUN="nix-shell etc/env/nix/shell.nix --argstr compiler ${compiler} --pure --run"
   echo "${NIX_SHELL_RUN}"
   echo "Testing compiler ${compiler}"
-  ${NIX_SHELL_RUN} "make -sj 8 extern CONFIG=nix-${compiler}"
-  ${NIX_SHELL_RUN} "make -sj 8 cc4s CONFIG=nix-${compiler}"
-  ${NIX_SHELL_RUN} "make -sj 8 test-run CONFIG=nix-${compiler}"
-  ${NIX_SHELL_RUN} "make -sj 8 test-check CONFIG=nix-${compiler}"
+  if [[ -z ${CI_MAKE_RULE} ]]; then
+    ${NIX_SHELL_RUN} "make -sj 8 extern CONFIG=nix-${compiler}"
+    ${NIX_SHELL_RUN} "make -sj 8 cc4s CONFIG=nix-${compiler}"
+    ${NIX_SHELL_RUN} "make -sj 8 test-run CONFIG=nix-${compiler}"
+    ${NIX_SHELL_RUN} "make -sj 8 test-check CONFIG=nix-${compiler}"
+  else
+    ${NIX_SHELL_RUN} "make -sj 8 ${CI_MAKE_RULE} CONFIG=nix-${compiler}"
+  fi
 done

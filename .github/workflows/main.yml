@@ -35,6 +35,21 @@ jobs:
       run: make fetch-dependencies CONFIG=dist
 
     - name: ${{matrix.compiler}} build extern
-      run: nix-shell etc/env/nix/shell.nix --argstr compiler ${{matrix.compiler}} --run 'make -sj extern CONFIG=nix-${{matrix.compiler}}'
+      run: ./tools/compile-and-test-nix.sh ${{matrix.compiler}}
+      env:
+        CI_MAKE_RULE: extern
+
     - name: ${{matrix.compiler}} build cc4s
-      run: nix-shell etc/env/nix/shell.nix --argstr compiler ${{matrix.compiler}} --run 'make -sj cc4s CONFIG=nix-${{matrix.compiler}}'
+      run: ./tools/compile-and-test-nix.sh ${{matrix.compiler}}
+      env:
+        CI_MAKE_RULE: cc4s
+
+    - name: ${{matrix.compiler}} tests (run)
+      run: ./tools/compile-and-test-nix.sh ${{matrix.compiler}}
+      env:
+        CI_MAKE_RULE: test-run
+
+    - name: ${{matrix.compiler}} tests (check)
+      run: ./tools/compile-and-test-nix.sh ${{matrix.compiler}}
+      env:
+        CI_MAKE_RULE: test-check
